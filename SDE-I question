@@ -72,26 +72,20 @@ public class Facebook {
     public static void main(String[] args) {
         Facebook facebook = new Facebook();
 
-        // Creating users
         facebook.users.put("user1", new User("user1"));
         facebook.users.put("user2", new User("user2"));
 
-        // User1 creates a post
         facebook.createPost("user1", "Hello World!");
 
-        // User2 follows User1
         facebook.follow("user2", "user1");
 
-        // User2 gets news feed
         List<Integer> newsFeed = facebook.getNewsFeed("user2");
         for (int postId : newsFeed) {
             System.out.println(facebook.posts.get(postId).content);
         }
 
-        // User1 deletes a post
         facebook.deletePost("user1", 1);
 
-        // User2 gets news feed again
         newsFeed = facebook.getNewsFeed("user2");
         for (int postId : newsFeed) {
             System.out.println(facebook.posts.get(postId).content);
