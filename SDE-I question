@@ -1,0 +1,100 @@
+import java.util.*;
+
+class User {
+    String userId;
+    Set<String> following;
+
+    public User(String userId) {
+        this.userId = userId;
+        this.following = new HashSet<>();
+    }
+}
+
+class Post {
+    int postId;
+    String userId;
+    String content;
+
+    public Post(int postId, String userId, String content) {
+        this.postId = postId;
+        this.userId = userId;
+        this.content = content;
+    }
+}
+
+public class Facebook {
+    Map<String, User> users;
+    Map<Integer, Post> posts;
+    int newsFeedSize;
+
+    public Facebook() {
+        this.users = new HashMap<>();
+        this.posts = new HashMap<>();
+        this.newsFeedSize = 10;
+    }
+
+    public void createPost(String userId, String content) {
+        int postId = posts.size() + 1;
+        Post post = new Post(postId, userId, content);
+        posts.put(postId, post);
+    }
+
+    public List<Integer> getNewsFeed(String userId) {
+        User user = users.get(userId);
+        if (user == null) return new ArrayList<>();
+
+        List<Integer> newsFeed = new ArrayList<>();
+        for (int postId : posts.keySet()) {
+            Post post = posts.get(postId);
+            if (post.userId.equals(userId) || user.following.contains(post.userId)) {
+                newsFeed.add(postId);
+                if (newsFeed.size() == newsFeedSize) break;
+            }
+        }
+        return newsFeed;
+    }
+
+    public void follow(String followerId, String followeeId) {
+        User follower = users.getOrDefault(followerId, new User(followerId));
+        User followee = users.getOrDefault(followeeId, new User(followeeId));
+        follower.following.add(followeeId);
+        users.put(followerId, follower);
+        users.put(followeeId, followee);
+    }
+
+    public void deletePost(String userId, int postId) {
+        Post post = posts.get(postId);
+        if (post != null && post.userId.equals(userId)) {
+            posts.remove(postId);
+        }
+    }
+
+    public static void main(String[] args) {
+        Facebook facebook = new Facebook();
+
+        // Creating users
+        facebook.users.put("user1", new User("user1"));
+        facebook.users.put("user2", new User("user2"));
+
+        // User1 creates a post
+        facebook.createPost("user1", "Hello World!");
+
+        // User2 follows User1
+        facebook.follow("user2", "user1");
+
+        // User2 gets news feed
+        List<Integer> newsFeed = facebook.getNewsFeed("user2");
+        for (int postId : newsFeed) {
+            System.out.println(facebook.posts.get(postId).content);
+        }
+
+        // User1 deletes a post
+        facebook.deletePost("user1", 1);
+
+        // User2 gets news feed again
+        newsFeed = facebook.getNewsFeed("user2");
+        for (int postId : newsFeed) {
+            System.out.println(facebook.posts.get(postId).content);
+        }
+    }
+}
